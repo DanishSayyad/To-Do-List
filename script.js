@@ -5,7 +5,10 @@ window.onload = function () {
   const dd = String(today.getDate()).padStart(2, "0");
   const formatted = `${yyyy}-${mm}-${dd}`;
   const dateInput = document.getElementById("dueDateInput");
-  if (dateInput) dateInput.value = formatted;
+  if (dateInput) {
+    dateInput.value = formatted;
+    dateInput.min = formatted;
+  }
   loadTasks();
 };
 
@@ -15,9 +18,23 @@ document.getElementById("taskInput").addEventListener("keypress", function (e) {
 
 function addTask() {
   const text = document.getElementById("taskInput").value.trim();
-  const date = document.getElementById("dueDateInput").value;
+  const dateInputEl = document.getElementById("dueDateInput");
+  let date = dateInputEl.value;
   const priority = document.getElementById("priorityInput").value;
   if (text === "") return;
+
+  const todayMin = dateInputEl.min || (function(){
+    const t = new Date();
+    const y = t.getFullYear();
+    const m = String(t.getMonth() + 1).padStart(2, "0");
+    const d = String(t.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  })();
+  if (date && date < todayMin) {
+    alert("Please select a valid date (today or future). Date has been reset to today.");
+    date = todayMin;
+    dateInputEl.value = todayMin;
+  }
 
   createTaskElement(text, date, priority, false);
   saveTasks();
