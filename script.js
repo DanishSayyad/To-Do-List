@@ -1,4 +1,11 @@
 window.onload = function () {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const formatted = `${yyyy}-${mm}-${dd}`;
+  const dateInput = document.getElementById("dueDateInput");
+  if (dateInput) dateInput.value = formatted;
   loadTasks();
 };
 
@@ -15,8 +22,44 @@ function addTask() {
   createTaskElement(text, date, priority, false);
   saveTasks();
   document.getElementById("taskInput").value = "";
-  document.getElementById("dueDateInput").value = "";
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  document.getElementById("dueDateInput").value = `${yyyy}-${mm}-${dd}`;
   document.getElementById("priorityInput").value = "Low";
+}
+
+function sortByDate() {
+  const list = Array.from(document.querySelectorAll("#taskList li"));
+  list.sort((a, b) => {
+    const ad = a.querySelector(".due")?.textContent?.replace("Due: ", "") || "";
+    const bd = b.querySelector(".due")?.textContent?.replace("Due: ", "") || "";
+    if (ad === "" && bd === "") return 0;
+    if (ad === "") return 1;
+    if (bd === "") return -1;
+    if (ad < bd) return -1;
+    if (ad > bd) return 1;
+    return 0;
+  });
+  const ul = document.getElementById("taskList");
+  ul.innerHTML = "";
+  list.forEach(li => ul.appendChild(li));
+  saveTasks();
+}
+
+function sortByPriority() {
+  const map = { High: 1, Medium: 2, Low: 3 };
+  const list = Array.from(document.querySelectorAll("#taskList li"));
+  list.sort((a, b) => {
+    const ap = a.querySelector(".priority")?.textContent || "Low";
+    const bp = b.querySelector(".priority")?.textContent || "Low";
+    return map[ap] - map[bp];
+  });
+  const ul = document.getElementById("taskList");
+  ul.innerHTML = "";
+  list.forEach(li => ul.appendChild(li));
+  saveTasks();
 }
 
 function createTaskElement(text, date, priority, completed) {
