@@ -76,6 +76,12 @@ function addTask() {
 function sortByDate() {
   const list = Array.from(document.querySelectorAll("#taskList li"));
   list.sort((a, b) => {
+    const aIsDaily = a.classList.contains("daily-task");
+    const bIsDaily = b.classList.contains("daily-task");
+    
+    if (aIsDaily && !bIsDaily) return -1;
+    if (!aIsDaily && bIsDaily) return 1;
+    
     const ad = a.querySelector(".due")?.textContent?.replace("Due: ", "") || "";
     const bd = b.querySelector(".due")?.textContent?.replace("Due: ", "") || "";
     if (ad === "" && bd === "") return 0;
@@ -92,9 +98,15 @@ function sortByDate() {
 }
 
 function sortByPriority() {
-  const map = { High: 1, Medium: 2, Low: 3 };
+  const map = { High: 1, Medium: 2, Low: 3, Daily: 0 };
   const list = Array.from(document.querySelectorAll("#taskList li"));
   list.sort((a, b) => {
+    const aIsDaily = a.classList.contains("daily-task");
+    const bIsDaily = b.classList.contains("daily-task");
+    
+    if (aIsDaily && !bIsDaily) return -1;
+    if (!aIsDaily && bIsDaily) return 1;
+    
     const ap = a.querySelector(".priority")?.textContent || "Low";
     const bp = b.querySelector(".priority")?.textContent || "Low";
     return map[ap] - map[bp];
@@ -139,14 +151,18 @@ function createTaskElement(text, date, priority, completed, isDailyTask = false,
     taskText.appendChild(due);
   }
 
-  if (!isDailyTask) {
+  li.appendChild(taskText);
+
+  if (isDailyTask) {
+    const dailyBadge = document.createElement("span");
+    dailyBadge.className = "priority Daily";
+    dailyBadge.textContent = "Daily";
+    li.appendChild(dailyBadge);
+  } else {
     const priorityBadge = document.createElement("span");
     priorityBadge.className = `priority ${priority}`;
     priorityBadge.textContent = priority;
-    li.appendChild(taskText);
     li.appendChild(priorityBadge);
-  } else {
-    li.appendChild(taskText);
   }
 
   const deleteBtn = document.createElement("button");
